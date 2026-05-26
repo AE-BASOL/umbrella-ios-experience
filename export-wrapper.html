@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>*{margin:0;padding:0;overflow:hidden}iframe{width:100vw;height:100vh;border:none}</style>
+</head>
+<body>
+<iframe id="f" src="UmbrellaToday All Screens v2.html"></iframe>
+<script>
+var frame = document.getElementById('f');
+window.__iframeReady = false;
+
+frame.onload = function() {
+  // Wait for React to render artboards (page loads HTML first, then Babel transpiles)
+  var check = setInterval(function() {
+    try {
+      var slots = frame.contentWindow.document.querySelectorAll('[data-dc-slot]');
+      if (slots.length > 100) {
+        clearInterval(check);
+        // Set up navigation
+        var sectionIds = ["alternative","today-hero-alts","city-picker","see-more","day-popup","alt-settings","widgets-v2","widgets-v3","app-and-menus","dynamic-island","standby","lock-screens","notifications","live-brief"];
+        var allSlots = [];
+        sectionIds.forEach(function(secId) {
+          var sec = frame.contentWindow.document.querySelector('[data-dc-section="' + secId + '"]');
+          if (!sec) return;
+          var els = sec.querySelectorAll('[data-dc-slot]');
+          for (var i = 0; i < els.length; i++) allSlots.push(els[i].getAttribute('data-dc-slot'));
+        });
+        frame.contentWindow.__allSlots = allSlots;
+        frame.contentWindow.__go = function(idx) {
+          frame.contentWindow.document.dispatchEvent(new KeyboardEvent('keydown', {key:'Escape', bubbles:true}));
+          var s = frame.contentWindow.__allSlots[idx];
+          if (s) setTimeout(function() {
+            var b = frame.contentWindow.document.querySelector('[data-dc-slot="' + s + '"] .dc-expand');
+            if (b) b.click();
+          }, 150);
+        };
+        window.__iframeReady = true;
+        window.__totalSlots = allSlots.length;
+      }
+    } catch(e) {}
+  }, 1000);
+};
+
+window.go = function(i) {
+  if (window.__iframeReady) {
+    frame.contentWindow.__go(i);
+  }
+};
+</script>
+</body>
+</html>

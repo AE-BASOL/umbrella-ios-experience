@@ -1,0 +1,17 @@
+/* City visual identity banner — sits at top of each .bcity row in the bohem
+   drawer. Renders the stylized SVG skyline from city-visuals.jsx with a
+   rounded crown so cards feel like collectible weather deck pieces. */
+.bcity-visual {
+  height: 56px;
+  margin: 10px 14px 8px;
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: inset 0 0 0 0.5px rgba(20,16,10,0.08);
+}
+.bcity-visual svg { width: 100%; height: 100%; display: block; }
+.bcity[data-active="1"] .bcity-visual {
+  box-shadow:
+    inset 0 0 0 1px color-mix(in oklab, var(--bar-fill) 50%, transparent),
+    0 1px 8px color-mix(in oklab, var(--bar-fill) 25%, transparent);
+}

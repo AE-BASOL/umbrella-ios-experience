@@ -1,0 +1,85 @@
+/* Per-item widgets — extends the shared widget chrome from styles.css.
+   Each item widget reuses .widget / .widget-card / .widget-grid styles and
+   adds: a glyph backdrop sized for AGlyph SVGs, a small-widget header strip
+   that pairs the city label with the item name, and a tiny "note" line under
+   the value. Keeps the bohem soft-iOS feel — no new colors, just composition. */
+
+.widget.item-widget .widget-card {
+  background:
+    radial-gradient(120% 80% at 0% 0%,
+      color-mix(in oklab, var(--surface) 70%, var(--bg)) 0%,
+      var(--bg) 70%);
+}
+
+/* Glyph backdrop — AGlyph svgs render at full color so we tone them down via
+   opacity + soft mask. The small variant centers; the medium pushes the glyph
+   to the right edge like the WeatherIcon does on the original MediumWidget. */
+.iw-bg-glyph {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  opacity: 0.16;
+  filter: saturate(0.85);
+}
+.iw-bg-glyph.medium {
+  justify-content: flex-end;
+  padding-right: 4px;
+  opacity: 0.14;
+}
+
+/* Small-widget header pairs city label with item name on its own line. */
+.iw-small {
+  padding: 12px 14px 14px;
+  box-sizing: border-box;
+}
+.iw-small-top {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+.iw-small-name {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--headline);
+  letter-spacing: -0.1px;
+  font-family: -apple-system, "SF Pro Text", system-ui, sans-serif;
+  text-transform: none;
+  line-height: 1;
+}
+
+/* Big value with a softer trailing unit. Uses same monospace as widget-pct. */
+.iw-val {
+  display: inline-flex;
+  align-items: baseline;
+  letter-spacing: -1.2px;
+}
+.iw-val .iw-unit {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 0;
+  margin-left: 2px;
+}
+
+/* The little italicized recommendation line under the cap. */
+.iw-note {
+  margin-top: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px 3px 7px;
+  border-radius: 9999px;
+  background: color-mix(in oklab, var(--badge-bg) 70%, transparent);
+  color: var(--badge-text);
+  font-size: 9.5px;
+  font-weight: 700;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  letter-spacing: 0.2px;
+  text-transform: uppercase;
+  align-self: flex-start;
+  white-space: nowrap;
+}

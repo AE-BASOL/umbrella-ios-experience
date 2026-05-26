@@ -1,0 +1,928 @@
+/* Bohem layer — modern heritage. Loaded after styles.css.
+   - eyebrow: 10px uppercase accent, 0.6 ls
+   - display: 22-26px semibold, -0.5 ls, headline color
+   - body:    13.5px medium, accent or tertiary
+   - mono:    only data (°, %, time, version)
+   - rules:   thin hairlines, no card-in-card, generous gutters
+*/
+
+/* ─── Shared atomic ───────────────────────────────────── */
+.bset-eyebrow {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--accent);
+}
+.bset-display {
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+  color: var(--headline);
+  margin-top: 4px;
+  line-height: 1.15;
+}
+.bset-display.lg { font-size: 26px; }
+.bset-blurb {
+  font-size: 12.5px;
+  font-weight: 400;
+  font-style: italic;
+  color: var(--accent);
+  margin-top: 6px;
+  line-height: 1.5;
+  letter-spacing: -0.05px;
+}
+.bset-mini-eyebrow {
+  font-size: 9.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  color: var(--tertiary);
+  margin: 4px 0 8px;
+}
+.bset-divider {
+  height: 0.5px;
+  background: color-mix(in oklab, var(--border) 80%, transparent);
+  margin: 14px 0;
+}
+.bset-rule {
+  height: 0.5px;
+  background: color-mix(in oklab, var(--border) 90%, transparent);
+  margin: 12px 0 18px;
+}
+
+.mono { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-weight: 500; }
+
+/* ─── Settings shell ──────────────────────────────────── */
+.bset-shell {
+  padding: 20px 22px 28px;
+  display: flex;
+  flex-direction: column;
+}
+.bset-top {
+  display: flex; justify-content: space-between; align-items: flex-end;
+  gap: 12px;
+}
+.bset-done {
+  border: none;
+  background: transparent;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 6px 0;
+  font-family: inherit;
+  letter-spacing: -0.1px;
+  border-bottom: 1px solid color-mix(in oklab, var(--accent) 40%, transparent);
+}
+.bset-end {
+  font-style: italic;
+  font-size: 11.5px;
+  font-weight: 400;
+  color: var(--tertiary);
+  text-align: center;
+  padding: 28px 0 8px;
+  letter-spacing: 0.1px;
+}
+
+/* ─── Section ─────────────────────────────────────────── */
+.bset-section {
+  padding: 22px 0;
+  border-top: 0.5px solid color-mix(in oklab, var(--border) 70%, transparent);
+}
+.bset-section:first-of-type { border-top: none; padding-top: 6px; }
+.bset-section-head {
+  display: flex; align-items: flex-start; gap: 14px;
+  margin-bottom: 14px;
+}
+.bset-index {
+  font-size: 10px;
+  font-weight: 700;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  color: var(--tertiary);
+  letter-spacing: 0.4px;
+  padding-top: 4px;
+  flex-shrink: 0;
+}
+.bset-section-titles { flex: 1; min-width: 0; }
+.bset-section-body { display: flex; flex-direction: column; gap: 0; padding-left: 26px; }
+
+/* ─── Row ─────────────────────────────────────────────── */
+.bset-row {
+  display: flex; align-items: center; gap: 14px;
+  padding: 12px 0;
+}
+.bset-row.div { border-top: 0.5px dashed color-mix(in oklab, var(--border) 80%, transparent); }
+.bset-row-text { flex: 1; min-width: 0; }
+.bset-row-text .lab {
+  font-size: 13.5px; font-weight: 600;
+  color: var(--headline);
+  letter-spacing: -0.1px;
+}
+.bset-row-text .hint {
+  font-size: 11px; font-weight: 400;
+  font-style: italic;
+  color: var(--tertiary);
+  margin-top: 3px;
+  line-height: 1.45;
+}
+.bset-row-ctrl { flex-shrink: 0; }
+
+/* ─── Switch ──────────────────────────────────────────── */
+.bset-switch {
+  width: 40px; height: 22px;
+  border-radius: 9999px;
+  background: color-mix(in oklab, var(--tertiary) 30%, transparent);
+  border: 0.5px solid color-mix(in oklab, var(--border) 70%, transparent);
+  position: relative;
+  cursor: pointer;
+  padding: 0;
+  transition: background 220ms ease;
+}
+.bset-switch .knob {
+  position: absolute;
+  top: 2px; left: 2px;
+  width: 16px; height: 16px;
+  border-radius: 9999px;
+  background: var(--bg);
+  box-shadow: 0 1px 3px rgba(8,24,48,0.18);
+  transition: transform 220ms cubic-bezier(.2,.7,.2,1);
+}
+.bset-switch.on { background: var(--bar-fill); }
+.bset-switch.on .knob { transform: translateX(18px); }
+
+/* ─── Segmented ───────────────────────────────────────── */
+.bset-segmented {
+  display: inline-flex;
+  gap: 0;
+  padding: 0;
+  border: 0.5px solid color-mix(in oklab, var(--border) 90%, transparent);
+  border-radius: 9999px;
+  overflow: hidden;
+  background: transparent;
+  width: 100%;
+}
+.bset-segmented button {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 9px 12px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--accent);
+  cursor: pointer;
+  font-family: inherit;
+  letter-spacing: -0.1px;
+  border-right: 0.5px solid color-mix(in oklab, var(--border) 80%, transparent);
+  transition: background 200ms ease, color 200ms ease;
+}
+.bset-segmented button:last-child { border-right: none; }
+.bset-segmented button.on {
+  background: var(--badge-bg);
+  color: var(--badge-text);
+  font-weight: 600;
+}
+
+/* ─── Choice rows ─────────────────────────────────────── */
+.bset-choices { display: flex; flex-direction: column; gap: 2px; }
+.bset-choice {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 12px 0;
+  background: transparent;
+  border: none;
+  border-bottom: 0.5px dashed color-mix(in oklab, var(--border) 70%, transparent);
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  width: 100%;
+}
+.bset-choice:last-child { border-bottom: none; }
+.bset-choice-mark {
+  width: 18px; height: 18px;
+  border-radius: 9999px;
+  border: 1px solid color-mix(in oklab, var(--accent) 40%, transparent);
+  display: inline-flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+  transition: border-color 180ms ease;
+}
+.bset-choice-mark .dot {
+  width: 8px; height: 8px;
+  border-radius: 9999px;
+  background: transparent;
+  transition: background 180ms ease;
+}
+.bset-choice-mark.on { border-color: var(--bar-fill); }
+.bset-choice-mark.on .dot { background: var(--bar-fill); }
+.bset-choice-text { display: flex; flex-direction: column; gap: 3px; }
+.bset-choice-text .name {
+  font-size: 13.5px; font-weight: 600;
+  color: var(--headline);
+  letter-spacing: -0.1px;
+}
+.bset-choice-text .desc {
+  font-size: 11.5px; font-weight: 400; font-style: italic;
+  color: var(--tertiary);
+  line-height: 1.45;
+}
+
+/* ─── Pills / link buttons ────────────────────────────── */
+.bset-pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 11px;
+  border-radius: 9999px;
+  background: color-mix(in oklab, var(--badge-bg) 65%, transparent);
+  color: var(--badge-text);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: -0.05px;
+}
+.bset-pill.mono { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-weight: 600; }
+.bset-pill.on   { background: var(--bar-fill); color: white; }
+
+.bset-link {
+  margin-top: 14px;
+  align-self: flex-start;
+  display: inline-flex; align-items: center; gap: 7px;
+  border: none;
+  background: transparent;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  letter-spacing: -0.1px;
+  padding: 4px 0;
+  border-bottom: 1px solid color-mix(in oklab, var(--accent) 35%, transparent);
+}
+.bset-link.ghost {
+  border-bottom-color: transparent;
+  color: var(--tertiary);
+  font-style: italic;
+  font-weight: 500;
+}
+.bset-link.ghost:hover { color: var(--accent); }
+.bset-link span:first-child { font-size: 14px; line-height: 1; }
+
+/* ─── Personal alerts ─────────────────────────────────── */
+.bset-alerts {
+  display: flex; flex-direction: column; gap: 0;
+}
+.bset-alert {
+  border-bottom: 0.5px dashed color-mix(in oklab, var(--border) 70%, transparent);
+}
+.bset-alert:last-child { border-bottom: none; }
+.bset-alert-row {
+  width: 100%;
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+}
+.bset-alert-ico {
+  width: 32px; height: 32px;
+  border-radius: 10px;
+  background: color-mix(in oklab, var(--badge-bg) 50%, transparent);
+  color: var(--badge-text);
+  display: inline-flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: background 200ms ease, color 200ms ease;
+}
+.bset-alert.on .bset-alert-ico {
+  background: var(--bar-fill);
+  color: white;
+}
+.bset-alert.off .bset-alert-ico { opacity: 0.55; }
+.bset-alert-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.bset-alert-text .name {
+  font-size: 13.5px; font-weight: 600;
+  color: var(--headline);
+  letter-spacing: -0.1px;
+}
+.bset-alert.off .bset-alert-text .name { color: var(--tertiary); font-weight: 500; }
+.bset-alert-text .thresh {
+  font-size: 11px; font-weight: 400; font-style: italic;
+  color: var(--tertiary);
+  letter-spacing: -0.05px;
+}
+.bset-alert-text .thresh em {
+  font-style: normal;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  color: var(--accent);
+  font-weight: 600;
+  margin: 0 1px;
+}
+.bset-alert-toggle { flex-shrink: 0; display: inline-flex; }
+.bset-alert-body {
+  padding: 4px 0 16px 44px;
+}
+
+/* ─── Slider ──────────────────────────────────────────── */
+.bset-slider {
+  display: flex; flex-direction: column; gap: 8px;
+}
+.bset-slider input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  background: transparent;
+  margin: 4px 0;
+}
+.bset-slider input[type="range"]::-webkit-slider-runnable-track {
+  height: 2px;
+  background: color-mix(in oklab, var(--bar-track) 80%, transparent);
+}
+.bset-slider input[type="range"]::-moz-range-track {
+  height: 2px;
+  background: color-mix(in oklab, var(--bar-track) 80%, transparent);
+}
+.bset-slider input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px; height: 14px;
+  border-radius: 9999px;
+  background: var(--bar-fill);
+  border: 2px solid var(--bg);
+  margin-top: -6px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.18);
+}
+.bset-slider input[type="range"]::-moz-range-thumb {
+  width: 14px; height: 14px;
+  border-radius: 9999px;
+  background: var(--bar-fill);
+  border: 2px solid var(--bg);
+}
+.bset-slider-foot {
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 10.5px;
+  color: var(--tertiary);
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+}
+.bset-slider-foot .end { opacity: 0.65; }
+.bset-slider-foot .cur {
+  color: var(--headline);
+  font-weight: 700;
+  font-size: 12px;
+}
+.bset-slider-foot .cur em {
+  font-style: normal;
+  color: var(--accent);
+  margin-left: 3px;
+  font-weight: 500;
+}
+
+/* ─── Cities (in settings) ────────────────────────────── */
+.bset-cities {
+  display: flex; flex-direction: column; gap: 0;
+}
+.bset-city {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 0;
+  border-bottom: 0.5px dashed color-mix(in oklab, var(--border) 70%, transparent);
+}
+.bset-city:last-child { border-bottom: none; }
+.bset-city-bar {
+  width: 3px;
+  align-self: stretch;
+  border-radius: 9999px;
+  flex-shrink: 0;
+}
+.bset-city[data-state="rainy"]   .bset-city-bar { background: var(--rainy-bar-fill); }
+.bset-city[data-state="sunny"]   .bset-city-bar { background: var(--sunny-bar-fill); }
+.bset-city[data-state="neutral"] .bset-city-bar { background: var(--neutral-bar-fill); }
+.bset-city-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.bset-city-text .name {
+  font-size: 14px; font-weight: 600;
+  color: var(--headline);
+  display: flex; align-items: center; gap: 8px;
+  letter-spacing: -0.2px;
+}
+.bset-city-pin {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.7px;
+  text-transform: uppercase;
+  color: var(--accent);
+  border: 0.5px solid color-mix(in oklab, var(--accent) 40%, transparent);
+  padding: 2px 7px;
+  border-radius: 9999px;
+}
+.bset-city-text .meta {
+  font-size: 11px;
+  font-style: italic;
+  color: var(--tertiary);
+  display: flex; align-items: center; gap: 5px;
+  flex-wrap: wrap;
+}
+.bset-city-text .meta .dotsep { opacity: 0.5; font-style: normal; }
+.bset-city-text .meta .mono {
+  font-style: normal;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-weight: 500;
+  color: var(--accent);
+}
+.bset-city-acts { display: flex; gap: 4px; }
+.bset-city-acts button {
+  width: 26px; height: 26px;
+  border-radius: 9999px;
+  border: 0.5px solid color-mix(in oklab, var(--border) 80%, transparent);
+  background: transparent;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-family: inherit;
+  transition: background 180ms ease;
+}
+.bset-city-acts button:not(:disabled):hover {
+  background: color-mix(in oklab, var(--badge-bg) 50%, transparent);
+}
+.bset-city-acts button:disabled { opacity: 0.3; cursor: not-allowed; }
+.bset-city-acts button.rm:not(:disabled):hover {
+  background: color-mix(in oklab, #ff3b30 14%, transparent);
+  color: #ff3b30;
+  border-color: color-mix(in oklab, #ff3b30 30%, transparent);
+}
+
+/* ─── Developer accordion ─────────────────────────────── */
+.bset-dev .bset-dev-toggle {
+  width: 100%;
+  display: flex; align-items: center; gap: 14px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+}
+.bset-chev {
+  margin-left: auto;
+  color: var(--tertiary);
+  transition: transform 220ms ease;
+}
+.bset-chev.on { transform: rotate(90deg); }
+
+/* ─── Onboarding bohem alert step ─────────────────────── */
+.onb-card.bohem {
+  padding: 22px 22px 24px !important;
+  gap: 14px;
+}
+.onb-bohem-head { display: flex; flex-direction: column; gap: 4px; }
+.onb-eyebrow {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--accent);
+}
+.onb-display {
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+  color: var(--headline);
+  line-height: 1.15;
+}
+.onb-lede {
+  font-size: 12.5px;
+  font-style: italic;
+  color: var(--accent);
+  line-height: 1.55;
+  margin-top: 4px;
+  letter-spacing: -0.05px;
+}
+
+.onb-shake {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 0.5px dashed color-mix(in oklab, var(--accent) 38%, transparent);
+  background: color-mix(in oklab, var(--badge-bg) 35%, transparent);
+  color: var(--badge-text);
+  font-family: inherit;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  margin-top: 4px;
+  transition: transform 180ms ease, background 180ms ease;
+}
+.onb-shake:hover { background: color-mix(in oklab, var(--badge-bg) 60%, transparent); }
+.onb-shake:active { transform: scale(0.98); }
+.onb-shake .dice {
+  width: 30px; height: 30px;
+  border-radius: 9999px;
+  background: var(--bar-fill);
+  color: white;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 16px; font-weight: 700;
+  flex-shrink: 0;
+}
+.onb-shake > span:nth-child(2) {
+  font-size: 13.5px; font-weight: 600;
+  color: var(--headline);
+  letter-spacing: -0.2px;
+  flex: 1;
+}
+.onb-shake .hint {
+  font-size: 10.5px; font-style: italic;
+  color: var(--tertiary);
+  font-weight: 400;
+  letter-spacing: 0;
+  flex: none;
+}
+
+.onb-tile-list {
+  display: flex; flex-direction: column;
+  gap: 0;
+  margin-top: 8px;
+}
+@keyframes shakein {
+  0% { opacity: 0; transform: translateY(-4px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.onb-tile-list[class*="shake-"] .onb-tile.on {
+  animation: shakein 320ms cubic-bezier(.2,.7,.2,1) both;
+  animation-delay: calc(var(--i) * 30ms);
+}
+.onb-tile {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 0;
+  background: transparent;
+  border: none;
+  border-bottom: 0.5px dashed color-mix(in oklab, var(--border) 70%, transparent);
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  width: 100%;
+  transition: padding 180ms ease;
+}
+.onb-tile:last-child { border-bottom: none; }
+.onb-tile-ico {
+  width: 36px; height: 36px;
+  border-radius: 12px;
+  background: color-mix(in oklab, var(--badge-bg) 45%, transparent);
+  color: var(--badge-text);
+  display: inline-flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: background 220ms ease, color 220ms ease;
+}
+.onb-tile.on .onb-tile-ico {
+  background: var(--bar-fill);
+  color: white;
+}
+.onb-tile-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.onb-tile-text .name {
+  font-size: 14px; font-weight: 600;
+  color: var(--headline);
+  letter-spacing: -0.15px;
+}
+.onb-tile.on .onb-tile-text .name { color: var(--headline); }
+.onb-tile-text .desc {
+  font-size: 11.5px;
+  font-style: italic;
+  color: var(--tertiary);
+  line-height: 1.45;
+  letter-spacing: -0.05px;
+}
+
+.onb-tile-switch {
+  width: 38px; height: 22px;
+  border-radius: 9999px;
+  background: color-mix(in oklab, var(--tertiary) 28%, transparent);
+  position: relative;
+  flex-shrink: 0;
+  transition: background 220ms ease;
+}
+.onb-tile-switch .knob {
+  position: absolute;
+  top: 2px; left: 2px;
+  width: 18px; height: 18px;
+  border-radius: 9999px;
+  background: var(--bg);
+  box-shadow: 0 1px 3px rgba(8,24,48,0.18);
+  transition: transform 220ms cubic-bezier(.2,.7,.2,1);
+}
+.onb-tile-switch.on { background: var(--bar-fill); }
+.onb-tile-switch.on .knob { transform: translateX(16px); }
+
+.onb-tile-foot {
+  margin-top: 12px;
+  font-size: 11.5px;
+  font-style: italic;
+  color: var(--tertiary);
+  letter-spacing: -0.05px;
+  line-height: 1.5;
+  text-align: center;
+}
+.onb-tile-foot strong {
+  font-style: normal;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+/* ─── Drawer bohem ────────────────────────────────────── */
+.dw.bohem {
+  padding-top: 54px;
+  background: var(--bg);
+}
+.dw.bohem .dw-head {
+  padding: 18px 22px 0;
+  align-items: center;
+}
+.dw.bohem .dw-rule {
+  height: 0.5px;
+  background: color-mix(in oklab, var(--border) 80%, transparent);
+  margin: 14px 22px 0;
+}
+.dw.bohem .dw-toolbar {
+  padding: 14px 22px 6px;
+}
+.dw.bohem .dw-scroll {
+  padding: 6px 22px 28px;
+}
+.dw.bohem .dw-cards {
+  gap: 0;
+}
+.dw-add-btn.bohem {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 0.5px dashed color-mix(in oklab, var(--accent) 35%, transparent);
+  background: transparent;
+  color: var(--headline);
+  cursor: pointer;
+  font-family: inherit;
+  width: 100%;
+  text-align: left;
+  transition: background 180ms ease, border-color 180ms ease;
+}
+.dw-add-btn.bohem:hover {
+  background: color-mix(in oklab, var(--badge-bg) 30%, transparent);
+  border-color: color-mix(in oklab, var(--accent) 55%, transparent);
+}
+.dw-add-plus {
+  width: 32px; height: 32px;
+  border-radius: 9999px;
+  border: 1px solid color-mix(in oklab, var(--accent) 50%, transparent);
+  color: var(--accent);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  font-weight: 400;
+  flex-shrink: 0;
+}
+.dw-add-label {
+  font-size: 14px; font-weight: 600;
+  color: var(--headline);
+  letter-spacing: -0.2px;
+  flex: 1;
+}
+.dw-add-hint {
+  font-size: 10.5px;
+  font-style: italic;
+  color: var(--tertiary);
+  font-weight: 400;
+}
+
+.dw-foot-note.bohem {
+  font-size: 11.5px;
+  font-style: italic;
+  color: var(--tertiary);
+  line-height: 1.55;
+  text-align: center;
+  padding: 22px 12px 4px;
+  border-top: 0.5px dashed color-mix(in oklab, var(--border) 60%, transparent);
+  margin-top: 6px;
+}
+.dw-foot-note.bohem em {
+  font-style: italic;
+  color: var(--accent);
+}
+
+/* Bohem city card */
+.bcity {
+  position: relative;
+  border-bottom: 0.5px dashed color-mix(in oklab, var(--border) 70%, transparent);
+  transition: background 200ms ease;
+}
+.bcity:last-of-type { border-bottom: none; }
+.bcity[data-active="1"] {
+  background: linear-gradient(90deg, color-mix(in oklab, var(--badge-bg) 30%, transparent) 0%, transparent 80%);
+}
+.bcity-main {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 4px 1fr auto;
+  gap: 16px;
+  align-items: center;
+  padding: 18px 8px 18px 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+}
+.bcity-bar {
+  width: 3px; height: 36px;
+  border-radius: 9999px;
+}
+.bcity[data-state="rainy"]   .bcity-bar { background: var(--rainy-bar-fill); }
+.bcity[data-state="sunny"]   .bcity-bar { background: var(--sunny-bar-fill); }
+.bcity[data-state="neutral"] .bcity-bar { background: var(--neutral-bar-fill); }
+.bcity[data-active="1"] .bcity-bar { width: 4px; height: 48px; }
+
+.bcity-text { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.bcity-name {
+  font-size: 17px; font-weight: 600;
+  color: var(--headline);
+  letter-spacing: -0.4px;
+  display: flex; align-items: center; gap: 10px;
+}
+.bcity-pin {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.7px;
+  text-transform: uppercase;
+  color: var(--accent);
+  border: 0.5px solid color-mix(in oklab, var(--accent) 40%, transparent);
+  padding: 2px 7px;
+  border-radius: 9999px;
+}
+.bcity-sub {
+  font-size: 12px;
+  font-style: italic;
+  color: var(--accent);
+  letter-spacing: -0.05px;
+}
+.bcity-tone {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 10.5px;
+  font-weight: 500;
+  color: var(--tertiary);
+  margin-top: 2px;
+}
+.bcity-tone .mono {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  color: var(--accent);
+  font-weight: 600;
+}
+.bcity-tone .dot { opacity: 0.5; }
+
+.bcity-pip {
+  width: 6px; height: 6px;
+  border-radius: 9999px;
+}
+.bcity-pip { background: var(--neutral-bar-fill); }
+.bcity-tone .bcity-pip,
+.bcity[data-state="rainy"]   .bcity-pip { background: var(--rainy-bar-fill); }
+.bcity[data-state="sunny"]   .bcity-pip { background: var(--sunny-bar-fill); }
+.bcity[data-state="neutral"] .bcity-pip { background: var(--neutral-bar-fill); }
+
+.dw-result-row.bohem .bcity-pip[data-state="rainy"]   { background: var(--rainy-bar-fill); }
+.dw-result-row.bohem .bcity-pip[data-state="sunny"]   { background: var(--sunny-bar-fill); }
+.dw-result-row.bohem .bcity-pip[data-state="neutral"] { background: var(--neutral-bar-fill); }
+
+.bcity-temp {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  display: inline-flex; align-items: baseline;
+  color: var(--headline);
+  letter-spacing: -1.5px;
+}
+.bcity-temp .num {
+  font-size: 36px;
+  font-weight: 500;
+  line-height: 1;
+}
+.bcity-temp .deg {
+  font-size: 18px;
+  opacity: 0.5;
+  font-weight: 400;
+  margin-left: 1px;
+}
+
+.bcity-rm {
+  position: absolute;
+  top: 14px; right: 0;
+  width: 22px; height: 22px;
+  border-radius: 9999px;
+  border: 0.5px solid color-mix(in oklab, var(--border) 80%, transparent);
+  background: var(--bg);
+  color: var(--tertiary);
+  display: inline-flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 180ms ease;
+}
+.bcity:hover .bcity-rm { opacity: 1; }
+
+/* Bohem search results */
+.dw-result-row.bohem {
+  width: 100%;
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 4px;
+  background: transparent;
+  border: none;
+  border-bottom: 0.5px dashed color-mix(in oklab, var(--border) 70%, transparent);
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  border-radius: 0;
+}
+.dw-result-row.bohem:last-child { border-bottom: none; }
+.dw-result-row.bohem:hover { background: color-mix(in oklab, var(--badge-bg) 25%, transparent); }
+.dw-result-row.bohem .dw-result-text .name {
+  font-size: 14px; font-weight: 600;
+  color: var(--headline);
+  letter-spacing: -0.2px;
+}
+.dw-result-row.bohem .dw-result-text .meta {
+  font-size: 11px;
+  font-style: italic;
+  color: var(--tertiary);
+}
+.dw-result-row.bohem .dw-result-temp {
+  font-size: 14px; font-weight: 600;
+  color: var(--accent);
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+}
+.dw-result-row.bohem .dw-result-add {
+  width: 22px; height: 22px;
+  border-radius: 9999px;
+  border: 1px solid color-mix(in oklab, var(--accent) 45%, transparent);
+  color: var(--accent);
+  background: transparent;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+/* ─── Today's window — bohem (no card-in-card) ────────── */
+.window-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+  padding: 4px 0;
+  position: relative;
+}
+.window-row::before {
+  content: '';
+  position: absolute;
+  left: 50%; top: 6px; bottom: 6px;
+  width: 0.5px;
+  background: color-mix(in oklab, var(--border) 80%, transparent);
+}
+.window-card {
+  background: transparent;
+  border: none;
+  padding: 0;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.window-card.best, .window-card.avoid { background: transparent; }
+.window-tag {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.7px;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.window-tag .dot {
+  width: 6px; height: 6px;
+  border-radius: 9999px;
+}
+.window-tag .dot.best { background: var(--bar-fill); }
+.window-tag .dot.avoid {
+  background: transparent;
+  border: 1.4px solid color-mix(in oklab, var(--bar-fill) 60%, transparent);
+}
+.window-time {
+  font-size: 26px;
+  font-weight: 500;
+  color: var(--headline);
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  letter-spacing: -1px;
+  line-height: 1.05;
+  margin-top: 2px;
+}
+.window-reason {
+  font-size: 12.5px;
+  font-style: italic;
+  font-weight: 400;
+  color: var(--accent);
+  letter-spacing: -0.05px;
+  line-height: 1.45;
+  margin-top: 2px;
+}
+.window-meta {
+  margin-top: 4px;
+  display: flex; align-items: center; gap: 5px;
+  font-size: 10.5px;
+  font-weight: 500;
+  color: var(--tertiary);
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+}
+
+.no-status-pad { padding-top: 0 !important; }
