@@ -1289,4 +1289,8 @@ function AlternativeDashboard({ scenario = "rainy", detailMode = "sheet", preset
 }
 
 window.AlternativeDashboard = AlternativeDashboard;
-window.DayPopup = DayPopup;
+window.DayPopup = DayPopup;w i n d o w . I T E M _ S C E N E S   =   I T E M _ S C E N E S ;  
+ w i n d o w . p i c k H e r o I t e m   =   p i c k H e r o I t e m ;  
+ w i n d o w . f i r e F o r S t a t e   =   f i r e F o r S t a t e ;  
+ w i n d o w . I t e m S c e n e   =   I t e m S c e n e ;  
+ 

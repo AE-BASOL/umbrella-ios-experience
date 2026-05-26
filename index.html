@@ -30,38 +30,105 @@
   
   .main-content { flex: 1; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at center, #1c1c1e 0%, #0e0f12 100%); position: relative; overflow: hidden; }
   
-  /* Scale the device frame to fit nicely */
   .device-container { transform: scale(0.9); transition: transform 0.3s ease; }
   @media (max-height: 900px) { .device-container { transform: scale(0.8); } }
   @media (max-height: 800px) { .device-container { transform: scale(0.7); } }
   
   .landscape-container { transform: rotate(-90deg) scale(0.9); }
   @media (max-height: 900px) { .landscape-container { transform: rotate(-90deg) scale(0.8); } }
-
-  [data-theme="dark"] .main-content { background: #000; }
 </style>
 
 <script src="https://unpkg.com/react@18.3.1/umd/react.development.js"></script>
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js"></script>
 <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"></script>
 
-<!-- Project Scripts -->
+<!-- Project Scripts (Dependencies first) -->
 <script type="text/babel" src="ios-frame.jsx"></script>
 <script type="text/babel" src="icons.jsx"></script>
 <script type="text/babel" src="city-visuals.jsx"></script>
 <script type="text/babel" src="widgets.jsx"></script>
 <script type="text/babel" src="widgets-v3.jsx"></script>
 <script type="text/babel" src="widgets-v3-extras.jsx"></script>
+<script type="text/babel" src="alternative.jsx"></script>
 <script type="text/babel" src="dashboard.jsx"></script>
 <script type="text/babel" src="drawer.jsx"></script>
 <script type="text/babel" src="settings.jsx"></script>
-<script type="text/babel" src="extra-components.jsx"></script>
 
 <script type="text/babel">
-const { useState, useEffect } = React;
+const { useState, useEffect, useMemo } = React;
 
+// ─── Extracted Components from HTML ───
+function CTRestOfDay({ data, palette, variant, onVariantChange }) {
+  const hrs = useMemo(() => (data.hourly || []).slice(0, 8), [data]);
+  if (!hrs.length) return null;
+  const humidity = data.state === "rainy" ? 78 : data.state === "sunny" ? 38 : 56;
+  const visibility = data.state === "rainy" ? 6 : 10;
+  const sunrise = "06:42", sunset = "19:48";
+  const now = hrs[0];
+  const tomMin = Math.min(...hrs.map((h) => h.t));
+  const tomMax = Math.max(...hrs.map((h) => h.t));
+  const events = (() => {
+    const out = [{ kind: "now", h: now.h, label: "Now", t: data.temp, sub: data.state === "rainy" ? "Light rain" : data.state === "sunny" ? "Clear" : "Cloudy" }];
+    const rainStart = hrs.find((h) => (h.p ?? 0) >= 40);
+    if (rainStart && rainStart !== now) out.push({ kind: "rainStart", h: rainStart.h, label: "Rain starts", t: rainStart.t, sub: `${rainStart.p}%` });
+    out.push({ kind: "sunset", h: sunset.slice(0,2), label: "Sunset", t: null, sub: sunset });
+    return out;
+  })();
+  return (
+    <div style={{ padding: "20px 0" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", padding: "0 20px", marginBottom: 12 }}>
+        <span style={{ fontSize: 10, fontWeight: 700, opacity: 0.5, textTransform: "uppercase" }}>Rest of the day</span>
+        <div style={{ display: "flex", gap: 4 }}>
+          {["events", "console", "hybrid"].map(v => (
+            <button key={v} onClick={() => onVariantChange(v)} style={{ padding: "2px 8px", borderRadius: 10, border: "none", background: variant === v ? palette.accent : "rgba(255,255,255,0.1)", color: "#fff", fontSize: 9 }}>{v}</button>
+          ))}
+        </div>
+      </div>
+      <div style={{ margin: "0 20px", padding: 20, borderRadius: 20, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}>
+        <div style={{ fontSize: 13 }}>{tomMin}° — {tomMax}° · {data.verdict}</div>
+      </div>
+    </div>
+  );
+}
+
+function CenteredTempDashboard({ scenario = "rainy", forceHeroItem = "umbrella" }) {
+  const data = window.SCENARIOS ? window.SCENARIOS[scenario] : null;
+  const [variant, setVariant] = useState("hybrid");
+  if (!data) return <div style={{padding:40}}>Scenarios not loaded. Please ensure widgets.jsx is loaded correctly.</div>;
+  const palette = window.ITEM_SCENES ? window.ITEM_SCENES[forceHeroItem] : { deep: "#1a1a1a", accent: "#007aff" };
+  return (
+    <div style={{ width: "100%", height: "100%", background: palette.deep, overflowY: "auto" }}>
+      <div style={{ position: "relative", height: 460 }}>
+        {window.ItemScene && <ItemScene item={forceHeroItem} />}
+        <div style={{ position: "absolute", left: "50%", top: 194, transform: "translateX(-50%)", width: 240, height: 240, borderRadius: "50%", background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.5)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", backdropFilter: "blur(20px)" }}>
+          <div style={{ fontSize: 96, fontWeight: 700 }}>{data.temp}°</div>
+          <div style={{ fontSize: 14, opacity: 0.8 }}>{data.verdict}</div>
+        </div>
+      </div>
+      <CTRestOfDay data={data} palette={palette} variant={variant} onVariantChange={setVariant} />
+    </div>
+  );
+}
+
+function StandByClockVariant({ slot="V2-01" }) {
+  const s = window.V3_SLOTS && window.V3_SLOTS[slot];
+  const now = new Date();
+  if (!s) return <div style={{color:"#fff", padding:20}}>V3_SLOTS not loaded.</div>;
+  return (
+    <div style={{ width: 844, height: 390, background: "#000", display: "flex", alignItems: "center", justifyContent: "center", gap: 60, borderRadius: 40, border: "1px solid #333" }}>
+      <div style={{ fontSize: 120, fontWeight: 100 }}>{now.getHours()}:{String(now.getMinutes()).padStart(2,"0")}</div>
+      <div style={{ width: 2, height: 160, background: "rgba(255,255,255,0.1)" }} />
+      <div>
+        <div style={{ fontSize: 24, color: s.accent, fontWeight: 600 }}>{s.name}</div>
+        <div style={{ fontSize: 56, fontWeight: 700 }}>{s.value}{s.unit}</div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Main App ───
 function ExperienceApp() {
-  const [activeTab, setActiveTab] = useState('app'); // app, home, lock, standby
+  const [activeTab, setActiveTab] = useState('app');
   
   const navItems = [
     { id: 'app', label: 'App içi', icon: '📱' },
@@ -70,43 +137,6 @@ function ExperienceApp() {
     { id: 'standby', label: 'StandBy', icon: '🛌' }
   ];
 
-  const renderContent = () => {
-    switch(activeTab) {
-      case 'app':
-        return (
-          <div className="device-container">
-            <IOSDevice width={390} height={844}>
-              <CenteredTempDashboard scenario="rainy" forceHeroItem="umbrella" />
-            </IOSDevice>
-          </div>
-        );
-      case 'home':
-        return (
-          <div className="device-container">
-            <IOSDevice width={390} height={844}>
-              <V3HomeScreenWithApp />
-            </IOSDevice>
-          </div>
-        );
-      case 'lock':
-        return (
-          <div className="device-container">
-            <IOSDevice width={390} height={844}>
-              <V3LockScreenHero slot="V2-01" />
-            </IOSDevice>
-          </div>
-        );
-      case 'standby':
-        return (
-          <div className="landscape-container">
-            <StandByClockVariant slot="V2-01" />
-          </div>
-        );
-      default:
-        return null;
-    }
-  };
-
   return (
     <div className="experience-root">
       <div className="sidebar">
@@ -114,24 +144,37 @@ function ExperienceApp() {
           <h1>UmbrellaToday</h1>
           <p>iPhone Experience Portal</p>
         </div>
-        
         <div className="nav-group">
           <div className="nav-label">Screens</div>
           {navItems.map(item => (
-            <div 
-              key={item.id} 
-              className={`nav-item ${activeTab === item.id ? 'active' : ''}`}
-              onClick={() => setActiveTab(item.id)}
-            >
+            <div key={item.id} className={`nav-item ${activeTab === item.id ? 'active' : ''}`} onClick={() => setActiveTab(item.id)}>
               <div className="nav-icon">{item.icon}</div>
               {item.label}
             </div>
           ))}
         </div>
       </div>
-      
       <div className="main-content">
-        {renderContent()}
+        {activeTab === 'app' && (
+          <div className="device-container">
+            {window.IOSDevice && <IOSDevice width={390} height={844}><CenteredTempDashboard /></IOSDevice>}
+          </div>
+        )}
+        {activeTab === 'home' && (
+          <div className="device-container">
+            {window.IOSDevice && <IOSDevice width={390} height={844}>{window.V3HomeScreenWithApp && <V3HomeScreenWithApp />}</IOSDevice>}
+          </div>
+        )}
+        {activeTab === 'lock' && (
+          <div className="device-container">
+            {window.IOSDevice && <IOSDevice width={390} height={844}>{window.V3LockScreenHero && <V3LockScreenHero slot="V2-01" />}</IOSDevice>}
+          </div>
+        )}
+        {activeTab === 'standby' && (
+          <div className="landscape-container">
+            <StandByClockVariant />
+          </div>
+        )}
       </div>
     </div>
   );
