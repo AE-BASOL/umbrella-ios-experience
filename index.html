@@ -36,56 +36,102 @@
   
   .landscape-container { transform: rotate(-90deg) scale(0.9); }
   @media (max-height: 900px) { .landscape-container { transform: rotate(-90deg) scale(0.8); } }
+
+  /* Ensure the app content matches the dark theme of our portal */
+  .device-content-wrapper { width: 100%; height: 100%; background: #000; color: #fff; }
 </style>
 
 <script src="https://unpkg.com/react@18.3.1/umd/react.development.js"></script>
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js"></script>
 <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"></script>
 
-<!-- Project Scripts (Dependencies first) -->
-<script type="text/babel" src="ios-frame.jsx"></script>
-<script type="text/babel" src="icons.jsx"></script>
-<script type="text/babel" src="city-visuals.jsx"></script>
-<script type="text/babel" src="widgets.jsx"></script>
-<script type="text/babel" src="widgets-v3.jsx"></script>
-<script type="text/babel" src="widgets-v3-extras.jsx"></script>
-<script type="text/babel" src="alternative.jsx"></script>
-<script type="text/babel" src="dashboard.jsx"></script>
-<script type="text/babel" src="drawer.jsx"></script>
-<script type="text/babel" src="settings.jsx"></script>
-
 <script type="text/babel">
-const { useState, useEffect, useMemo } = React;
+const { useState, useEffect, useMemo, useRef } = React;
 
-// ─── Extracted Components from HTML ───
+// ─── Constants ───
+const ITEM_SCENES = {
+  umbrella: { sky: ["#1A3358", "#0D1B2E"], ground: "#081220", accent: "#378ADC", glow: "#5C84B8", surface: "#153252", deep: "#081220", particle: "rain", caption: "Wet streets" },
+  sunglasses: { sky: ["#D68A1A", "#5A3712"], ground: "#3A2210", accent: "#F3C562", glow: "#F0A93A", surface: "#5A3712", deep: "#3A2210", particle: "rays", caption: "Bright midday" },
+  sunscreen: { sky: ["#C4582A", "#7C3A1A"], ground: "#5A2B16", accent: "#F3A060", glow: "#F6B35C", surface: "#7C3A1A", deep: "#5A2B16", particle: "rays", caption: "Sun bites" },
+  jacket: { sky: ["#43536E", "#26303F"], ground: "#1C2430", accent: "#8AA0C0", glow: "#5A6472", surface: "#26303F", deep: "#1C2430", particle: "leaves", caption: "Cool layer" },
+  coat: { sky: ["#2E406E", "#1F2C48"], ground: "#162238", accent: "#A4BCE4", glow: "#D8E6FF", surface: "#1F2C48", deep: "#162238", particle: "snow", caption: "Bundle up" },
+  boots: { sky: ["#1F2E48", "#1B2A44"], ground: "#0D1727", accent: "#4A86C0", glow: "#5D8FC2", surface: "#1B2A44", deep: "#0D1727", particle: "puddle", caption: "Soaked ground" },
+  hat: { sky: ["#7A3A18", "#4A2814"], ground: "#2B160D", accent: "#D4844A", glow: "#E0A06A", surface: "#4A2814", deep: "#2B160D", particle: "wind", caption: "Sharp wind" },
+  water: { sky: ["#B87530", "#1D4A4C"], ground: "#12373A", accent: "#5EC0BC", glow: "#F0A24C", surface: "#1D4A4C", deep: "#12373A", particle: "heat", caption: "Heat haze" }
+};
+const SCENE_IMAGES = {
+  umbrella: "assets/scene-umbrella.png",
+  sunglasses: "assets/scene-sunglasses.png",
+  sunscreen: "assets/scene-sunscreen.png",
+  jacket: "assets/scene-jacket.png",
+  coat: "assets/scene-coat.png",
+  boots: "assets/scene-boots.png",
+  hat: "assets/scene-hat.png",
+  water: "assets/scene-water.png"
+};
+
+// ─── Utility ───
+function fireForState(data) {
+  const fired = new Set();
+  if (!data || !data.hourly || !data.hourly.length) return fired;
+  const max = (k) => Math.max(...data.hourly.map((h) => h[k] ?? 0));
+  if (max("p") >= 40) fired.add("umbrella");
+  if (max("p") >= 70) fired.add("boots");
+  if (max("uv") >= 4) fired.add("sunglasses");
+  if (max("uv") >= 6) fired.add("sunscreen");
+  if ((data.feels ?? 99) <= 16) fired.add("jacket");
+  if ((data.feels ?? 99) <= 6) fired.add("coat");
+  if ((data.feels ?? 99) <= 6) fired.add("hat");
+  if (max("t") >= 26) fired.add("water");
+  return fired;
+}
+
+// ─── Components ───
+function SceneParticles({ kind, accent }) {
+  if (kind === "rain") {
+    const drops = [];
+    for (let i = 0; i < 38; i++) {
+      const x = (i * 23 + i % 3 * 7) % 390;
+      const y = i * 17 % 180 + 10;
+      drops.push(<line key={i} x1={x} y1={y} x2={x - 4} y2={y + 12} stroke="rgba(190,220,255,0.55)" strokeWidth="1.1" strokeLinecap="round" />);
+    }
+    return <g>{drops}</g>;
+  }
+  return null;
+}
+
+function ItemScene({ item }) {
+  const p = ITEM_SCENES[item] || ITEM_SCENES.umbrella;
+  const imgSrc = SCENE_IMAGES[item] || SCENE_IMAGES.umbrella;
+  return (
+    <div style={{ width: "100%", height: "100%", position: "relative", overflow: "hidden", backgroundImage: `url('${imgSrc}')`, backgroundSize: "cover", backgroundPosition: "center" }}>
+      <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, height: "40%", background: `linear-gradient(to bottom, transparent 0%, ${p.deep} 100%)`, pointerEvents: "none" }}></div>
+      <svg style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }}>
+        <SceneParticles kind={p.particle} accent={p.accent} />
+      </svg>
+    </div>
+  );
+}
+
 function CTRestOfDay({ data, palette, variant, onVariantChange }) {
   const hrs = useMemo(() => (data.hourly || []).slice(0, 8), [data]);
   if (!hrs.length) return null;
-  const humidity = data.state === "rainy" ? 78 : data.state === "sunny" ? 38 : 56;
-  const visibility = data.state === "rainy" ? 6 : 10;
-  const sunrise = "06:42", sunset = "19:48";
-  const now = hrs[0];
   const tomMin = Math.min(...hrs.map((h) => h.t));
   const tomMax = Math.max(...hrs.map((h) => h.t));
-  const events = (() => {
-    const out = [{ kind: "now", h: now.h, label: "Now", t: data.temp, sub: data.state === "rainy" ? "Light rain" : data.state === "sunny" ? "Clear" : "Cloudy" }];
-    const rainStart = hrs.find((h) => (h.p ?? 0) >= 40);
-    if (rainStart && rainStart !== now) out.push({ kind: "rainStart", h: rainStart.h, label: "Rain starts", t: rainStart.t, sub: `${rainStart.p}%` });
-    out.push({ kind: "sunset", h: sunset.slice(0,2), label: "Sunset", t: null, sub: sunset });
-    return out;
-  })();
   return (
     <div style={{ padding: "20px 0" }}>
       <div style={{ display: "flex", justifyContent: "space-between", padding: "0 20px", marginBottom: 12 }}>
-        <span style={{ fontSize: 10, fontWeight: 700, opacity: 0.5, textTransform: "uppercase" }}>Rest of the day</span>
-        <div style={{ display: "flex", gap: 4 }}>
+        <span style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Rest of the day</span>
+        <div style={{ display: "flex", gap: 4, background: "rgba(255,255,255,0.06)", padding: 2, borderRadius: 8 }}>
           {["events", "console", "hybrid"].map(v => (
-            <button key={v} onClick={() => onVariantChange(v)} style={{ padding: "2px 8px", borderRadius: 10, border: "none", background: variant === v ? palette.accent : "rgba(255,255,255,0.1)", color: "#fff", fontSize: 9 }}>{v}</button>
+            <button key={v} onClick={() => onVariantChange(v)} style={{ padding: "3px 8px", borderRadius: 6, border: "none", background: variant === v ? palette.accent : "transparent", color: "#fff", fontSize: 9, fontWeight: 600, cursor: "pointer" }}>{v}</button>
           ))}
         </div>
       </div>
-      <div style={{ margin: "0 20px", padding: 20, borderRadius: 20, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}>
-        <div style={{ fontSize: 13 }}>{tomMin}° — {tomMax}° · {data.verdict}</div>
+      <div style={{ margin: "0 18px", padding: "16px 20px", borderRadius: 22, background: "rgba(255,255,255,0.05)", border: "0.5px solid rgba(255,255,255,0.12)", backdropFilter: "blur(10px)" }}>
+        <div style={{ fontSize: 13, fontWeight: 500, color: "rgba(255,255,255,0.9)", letterSpacing: "-0.01em" }}>
+          {tomMin}° — {tomMax}° · {data.verdict}
+        </div>
       </div>
     </div>
   );
@@ -94,15 +140,17 @@ function CTRestOfDay({ data, palette, variant, onVariantChange }) {
 function CenteredTempDashboard({ scenario = "rainy", forceHeroItem = "umbrella" }) {
   const data = window.SCENARIOS ? window.SCENARIOS[scenario] : null;
   const [variant, setVariant] = useState("hybrid");
-  if (!data) return <div style={{padding:40}}>Scenarios not loaded. Please ensure widgets.jsx is loaded correctly.</div>;
-  const palette = window.ITEM_SCENES ? window.ITEM_SCENES[forceHeroItem] : { deep: "#1a1a1a", accent: "#007aff" };
+  if (!data) return <div style={{padding:40, color:"#fff"}}>Scenarios not loaded.</div>;
+  const heroItem = forceHeroItem || "umbrella";
+  const palette = ITEM_SCENES[heroItem] || ITEM_SCENES.umbrella;
   return (
-    <div style={{ width: "100%", height: "100%", background: palette.deep, overflowY: "auto" }}>
+    <div style={{ width: "100%", height: "100%", background: palette.deep, overflowY: "auto", position: "relative" }}>
       <div style={{ position: "relative", height: 460 }}>
-        {window.ItemScene && <ItemScene item={forceHeroItem} />}
-        <div style={{ position: "absolute", left: "50%", top: 194, transform: "translateX(-50%)", width: 240, height: 240, borderRadius: "50%", background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.5)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", backdropFilter: "blur(20px)" }}>
-          <div style={{ fontSize: 96, fontWeight: 700 }}>{data.temp}°</div>
-          <div style={{ fontSize: 14, opacity: 0.8 }}>{data.verdict}</div>
+        <ItemScene item={heroItem} />
+        <div style={{ position: "absolute", left: "50%", top: 194, transform: "translateX(-50%)", width: 240, height: 240, borderRadius: "50%", background: "rgba(255,255,255,0.03)", border: "0.5px solid rgba(255,255,255,0.15)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", backdropFilter: "blur(40px) saturate(150%)", boxShadow: "0 20px 50px rgba(0,0,0,0.3)" }}>
+          <div style={{ fontSize: 110, fontWeight: 200, letterSpacing: "-5px", marginBottom: -10 }}>{data.temp}°</div>
+          <div style={{ fontSize: 14, fontWeight: 600, color: palette.accent, letterSpacing: "0.02em" }}>{data.state.toUpperCase()}</div>
+          <div style={{ fontSize: 13, fontWeight: 400, opacity: 0.7, marginTop: 4 }}>{data.verdict}</div>
         </div>
       </div>
       <CTRestOfDay data={data} palette={palette} variant={variant} onVariantChange={setVariant} />
@@ -114,22 +162,35 @@ function StandByClockVariant({ slot="V2-01" }) {
   const s = window.V3_SLOTS && window.V3_SLOTS[slot];
   const now = new Date();
   if (!s) return <div style={{color:"#fff", padding:20}}>V3_SLOTS not loaded.</div>;
+  const palette = ITEM_SCENES[s.item] || ITEM_SCENES.umbrella;
   return (
-    <div style={{ width: 844, height: 390, background: "#000", display: "flex", alignItems: "center", justifyContent: "center", gap: 60, borderRadius: 40, border: "1px solid #333" }}>
-      <div style={{ fontSize: 120, fontWeight: 100 }}>{now.getHours()}:{String(now.getMinutes()).padStart(2,"0")}</div>
-      <div style={{ width: 2, height: 160, background: "rgba(255,255,255,0.1)" }} />
-      <div>
-        <div style={{ fontSize: 24, color: s.accent, fontWeight: 600 }}>{s.name}</div>
-        <div style={{ fontSize: 56, fontWeight: 700 }}>{s.value}{s.unit}</div>
+    <div style={{ width: 844, height: 390, background: "#000", display: "flex", alignItems: "center", justifyContent: "center", gap: 60, borderRadius: 40, border: "0.5px solid rgba(255,255,255,0.1)", position: "relative", overflow: "hidden" }}>
+      <div style={{ position: "absolute", inset: 0, backgroundImage: `url('${SCENE_IMAGES[s.item]}')`, backgroundSize: "cover", opacity: 0.3, filter: "blur(20px)" }} />
+      <div style={{ fontSize: 160, fontWeight: 100, color: "#fff", zIndex: 1, letterSpacing: "-8px" }}>{now.getHours()}:{String(now.getMinutes()).padStart(2,"0")}</div>
+      <div style={{ width: 1, height: 200, background: "rgba(255,255,255,0.15)", zIndex: 1 }} />
+      <div style={{ zIndex: 1 }}>
+        <div style={{ fontSize: 24, color: palette.accent, fontWeight: 700, letterSpacing: "-0.5px" }}>{s.name}</div>
+        <div style={{ fontSize: 64, fontWeight: 300, color: "#fff" }}>{s.value}<span style={{ fontSize: 28, opacity: 0.4 }}>{s.unit}</span></div>
       </div>
     </div>
   );
 }
+</script>
 
-// ─── Main App ───
+<!-- Project Scripts (Dependencies) -->
+<script type="text/babel" src="ios-frame.jsx"></script>
+<script type="text/babel" src="icons.jsx"></script>
+<script type="text/babel" src="city-visuals.jsx"></script>
+<script type="text/babel" src="widgets.jsx"></script>
+<script type="text/babel" src="widgets-v3.jsx"></script>
+<script type="text/babel" src="widgets-v3-extras.jsx"></script>
+<script type="text/babel" src="dashboard.jsx"></script>
+<script type="text/babel" src="drawer.jsx"></script>
+<script type="text/babel" src="settings.jsx"></script>
+
+<script type="text/babel">
 function ExperienceApp() {
   const [activeTab, setActiveTab] = useState('app');
-  
   const navItems = [
     { id: 'app', label: 'App içi', icon: '📱' },
     { id: 'home', label: 'Home Screen', icon: '🏠' },

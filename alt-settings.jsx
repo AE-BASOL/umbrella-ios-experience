@@ -1259,7 +1259,7 @@ function AltSettingsDynamicIsland({ onBack }) {
             const on = condIds.has(it.id);
             return (
               <div key={it.id} onClick={() => toggleCond(it.id)} style={{
-                display:"flex", alignItems:"center", gap:12, padding:"14px 16px",
+                display:"flex", alignItems:"center", gap:12, padding:"12px 16px",
                 borderTop: i ? "0.5px solid rgba(255,255,255,0.06)" : "none", cursor:"pointer",
               }}>
                 <div style={{
@@ -1303,4 +1303,3 @@ window.AltSettingsPersonalAlerts = AltSettingsPersonalAlerts;
 window.AltSettingsMorningBrief = AltSettingsMorningBrief;
 window.AltSettingsCities = AltSettingsCities;
 window.AltSettingsDynamicIsland = AltSettingsDynamicIsland;
-window.AltSettingsMain = AltSettingsMain;
