@@ -403,5 +403,3 @@ function Settings({ visualState, onClose, ctx, setCtx, onOpenDrawer }) {
 }
 
 window.Settings = Settings;
-w i n d o w . A l t S e t t i n g s M a i n   =   A l t S e t t i n g s M a i n ;  
- 

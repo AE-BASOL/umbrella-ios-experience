@@ -336,6 +336,5 @@ function IOSKeyboard({ dark = false }) {
 Object.assign(window, {
   IOSDevice, IOSStatusBar, IOSNavBar, IOSGlassPill, IOSList, IOSListRow, IOSKeyboard,
 });
-w i n d o w . I O S D e v i c e   =   I O S D e v i c e ;  
- w i n d o w . I O S S t a t u s B a r   =   I O S S t a t u s B a r ;  
- 
+window.IOSDevice = IOSDevice;
+window.IOSStatusBar = IOSStatusBar;
